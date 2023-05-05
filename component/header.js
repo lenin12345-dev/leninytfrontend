@@ -253,7 +253,7 @@ function PrimarySearchAppBar() {
               value={value}
               onChange={(event, newValue) => {
                 router.push({
-                  pathname: "youtube/[videoId]",
+                  pathname: "/youtube/[videoId]",
                   query: { videoId: newValue?.id?.videoId },
                 });
               }}
