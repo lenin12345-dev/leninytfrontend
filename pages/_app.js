@@ -1,30 +1,24 @@
-// import '@/styles/globals.css'
-import React from 'react';
+import React from "react";
 import { Provider } from "react-redux";
 import store from ".././utils/store";
-import Header from '../component/header';
-// import '../src/styles/globals.css'
-import CssBaseline from '@material-ui/core/CssBaseline';
-import ThemeProvider from '@material-ui/styles/ThemeProvider';
-import theme from '../utils/theme';
+import Header from "../component/header";
+import CssBaseline from "@material-ui/core/CssBaseline";
+// import ThemeProvider from '@material-ui/styles/ThemeProvider';
+// import theme from '../utils/theme';
+import "react-multi-carousel/lib/styles.css";
 
 export default function App({ Component, pageProps }) {
   return (
-    
-    <div style={{backgroundColor:'white'}}>
-    {/* <ThemeProvider theme={theme} > */}
+    <div>
+      {/* <ThemeProvider theme={theme} > */}
 
-    <Provider store={store}>
-    <CssBaseline />
+      <Provider store={store}>
+        <CssBaseline />
 
-    <Header/>
-    <Component {...pageProps} />
-
-    </Provider>
-    {/* </ThemeProvider> */}
-
+        <Header />
+        <Component {...pageProps} />
+      </Provider>
+      {/* </ThemeProvider> */}
     </div>
-
-  )
-
+  );
 }

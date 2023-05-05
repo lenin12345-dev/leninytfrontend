@@ -7,7 +7,6 @@ const useStyles = makeStyles({
   root: {
     padding:4,
     borderBottom:'0.2px inset',
-    width:'fixed'
   },
   name: {
    fontWeight:'bold',
@@ -20,14 +19,14 @@ const ChatMessage = ({ name, message }) => {
   const classes = useStyles();
 
   return (
-    <Box display= 'flex' alignItems= 'center' className={ classes.root }  >
+    <Box display= 'flex' textAlign='left'  className={ classes.root }  >
       <img
-        style={{ height:28,marginRight:10 }}
+        style={{ height:32,marginRight:10 }}
         alt="user"
         src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png"
       />
       <span className={classes.name} >{name}</span>
-      <span>{message}</span>
+      <span >{message}</span>
       </Box>
   );
 };

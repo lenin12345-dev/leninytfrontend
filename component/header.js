@@ -3,19 +3,14 @@ import { alpha, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
-import Typography from "@material-ui/core/Typography";
-import InputBase from "@material-ui/core/InputBase";
 import Badge from "@material-ui/core/Badge";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
-import MailIcon from "@material-ui/icons/Mail";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
-import Icon from "@material-ui/core/Icon";
-import { Box } from "@material-ui/core";
 import { toggleMenu } from "../utils/appSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -24,11 +19,9 @@ import { YOUTUBE_SEARCH_API } from "../utils/constants";
 import { cacheResults } from "../utils/searchSlice";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const useStyles = makeStyles((theme) => ({
-  grow: {
-    flexGrow: 1,
-  },
   logo: {
     height: "30px",
   },
@@ -38,6 +31,17 @@ const useStyles = makeStyles((theme) => ({
     },
     "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
       borderRadius: "25px 0 0 25px",
+    },
+    "& .MuiInputLabel-formControl": {
+      top: -7,
+    },
+    "& .MuiAutocomplete-fullWidth": {
+      width: "80%",
+    },
+  },
+  appBar: {
+    "& .MuiPaper-elevation4": {
+      boxShadow: "none",
     },
   },
   title: {
@@ -53,13 +57,10 @@ const useStyles = makeStyles((theme) => ({
   search: {
     position: "relative",
     display: "flex",
-    // borderRadius: theme.shape.borderRadius,
     backgroundColor: alpha(theme.palette.common.white, 0.15),
     "&:hover": {
       backgroundColor: alpha(theme.palette.common.white, 0.25),
     },
-    // marginRight: theme.spacing(2),
-    // marginLeft: 0,
     flexGrow: 0.4,
     marginBottom: 5,
   },
@@ -93,13 +94,12 @@ const useStyles = makeStyles((theme) => ({
     border: `1px solid gray`,
     borderRadius: "0px 25px 25px 0px",
     marginLeft: 0,
-    backgroundColor: "#F0F0F0",
-    height: 49,
+    backgroundColor: "#F5F5F5",
+    height: 41,
     marginTop: 16,
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
     transition: theme.transitions.create("width"),
     width: "100%",
@@ -120,11 +120,9 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   autocompleteInputRoot: {
-    padding: "5px !important",
     borderRadius: "5px !important",
     '&[class*="MuiOutlinedInput-root"] .MuiAutocomplete-input:first-child': {
-      // Default left padding is 6px
-      padding: 10,
+      padding: 2,
     },
   },
 }));
@@ -135,9 +133,9 @@ function PrimarySearchAppBar() {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-
+  const [value, setValue] = React.useState(null);
   const searchCache = useSelector((store) => store.search);
-
+  const router = useRouter();
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const dispatch = useDispatch();
 
@@ -202,7 +200,9 @@ function PrimarySearchAppBar() {
   }, [searchQuery]);
 
   const getSearchSugsestions = async () => {
-    const data = await fetch(YOUTUBE_SEARCH_API +`q=${searchQuery && searchQuery.trim()}`);
+    const data = await fetch(
+      YOUTUBE_SEARCH_API + `&q=${searchQuery && searchQuery.trim()}`
+    );
     const json = await data.json();
     setSuggestions(json.items || []);
     dispatch(
@@ -214,11 +214,15 @@ function PrimarySearchAppBar() {
   const toggleMenuHandler = () => {
     dispatch(toggleMenu());
   };
-  console.log("json", suggestions);
 
   return (
     <div>
-      <AppBar position="static" color="inherit">
+      <AppBar
+        position="fixed"
+        color="inherit"
+        elevation={0}
+        className={classes.appBar}
+      >
         <Toolbar className={classes.toolbar}>
           <div className={classes.logoAlign}>
             <IconButton
@@ -243,25 +247,25 @@ function PrimarySearchAppBar() {
             <Autocomplete
               freeSolo
               id="free-solo-2-demo"
-              // disableClearable
-              fullWidth
               options={suggestions}
+              style={{ width: "80%" }}
               classes={{ inputRoot: classes.autocompleteInputRoot }}
-              // getOptionLabel={option => option?.snippet?.title}
+              value={value}
+              onChange={(event, newValue) => {
+                router.push({
+                  pathname: "youtube/[videoId]",
+                  query: { videoId: newValue?.id?.videoId },
+                });
+              }}
               getOptionLabel={(option) => {
-               console.log('option',option);
-                // Value selected with enter, right from the input
-                if (typeof option === 'string') {
+                if (typeof option === "string") {
                   return option;
                 }
-                // Add "xxx" option created dynamically
                 if (option.inputValue) {
                   return option.inputValue;
                 }
-                // Regular option
                 return option?.snippet?.title;
               }}
-
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -272,9 +276,8 @@ function PrimarySearchAppBar() {
                   variant="outlined"
                   className={classes.root}
                   InputLabelProps={{
-                    style: { fontSize: 14, marginBottom: 10 },
+                    style: { fontSize: 14 },
                   }}
-                  // InputProps={{ ...params.InputProps,classes: { root: classes.inputRoot }, type: "search" }}
                 />
               )}
             />

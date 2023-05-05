@@ -42,7 +42,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const CardComponent=(props)=>{
-    console.log('props',props);
     const classes = useStyles();
     return <Multi {...props}>
         <Card className={classes.card}>
