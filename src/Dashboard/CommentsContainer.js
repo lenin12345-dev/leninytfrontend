@@ -1,123 +1,101 @@
-import React from "react";
-import { Box } from "@material-ui/core";
+import React, { useState, useEffect } from "react";
+import { Box, TextField, Button, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
+import { useRouter } from "next/router";
+import api from "../config/api"
 
-const useStyles = makeStyles({
-  commentcontainer: {
-    margin: 5,
-    padding: 2,
-    marginTop: 9,
-    marginLeft: 24,
+const useStyles = makeStyles((theme) => ({
+  commentContainer: {
+    margin: theme.spacing(2),
+    padding: theme.spacing(2),
+    borderRadius: 8,
+    backgroundColor: "#f9f9f9",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(1),
+      display:'flex',
+      justifyContent:'center',
+      flexDirection:'column',
+      boxShadow: "none",
+    },
   },
-  watchPage: {
-    margin: 15,
+  header: {
+    marginBottom: theme.spacing(2),
+    fontWeight: 700,
+    color: "#333",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: '1.2rem',
+    },
+  },
+  textField: {
+    marginBottom: theme.spacing(2),
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: "50%",
+    },
+  },
+  button: {
+    marginBottom: theme.spacing(2),
+    width: '10%',
+    [theme.breakpoints.down("md")]: {
+      width: '50%',
+      alignSelf:'center'
+    },
   },
   commentDetails: {
     display: "flex",
-    margin: 10,
-    padding: 5,
-    border: "15px solid #fff",
-    backgroundColor: "#E8E8E8",
     alignItems: "center",
-    borderRadius: 16,
+    marginBottom: theme.spacing(1),
+    padding: theme.spacing(1),
+    border: "1px solid #ddd",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+      alignItems: "flex-start",
+    },
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: "50%",
+    [theme.breakpoints.down("sm")]: {
+      width: 30,
+      height: 30,
+    },
+  },
+  commentContent: {
+    marginLeft: theme.spacing(2),
+    [theme.breakpoints.down("sm")]: {
+      marginLeft: 0,
+    },
   },
   commentList: {
-    paddingLeft: 10,
-    border: "1px solid #C0C0C0",
-    marginLeft: 10,
+    marginTop: theme.spacing(2),
   },
-});
-
-const commentsData = [
-  {
-    name: "Lenin Mohapatra",
-    text: "Lorem ipsum dolor sit amet, consectetur adip",
-    replies: [],
+  noComments: {
+    marginTop: theme.spacing(2),
+    fontStyle: 'italic',
+    color: '#888',
   },
-  {
-    name: "Lenin Mohapatra",
-    text: "Lorem ipsum dolor sit amet, consectetur adip",
-    replies: [
-      {
-        name: "Lenin Mohapatra",
-        text: "Lorem ipsum dolor sit amet, consectetur adip",
-        replies: [],
-      },
-      {
-        name: "Lenin Mohapatra",
-        text: "Lorem ipsum dolor sit amet, consectetur adip",
-        replies: [
-          {
-            name: "Lenin Mohapatra",
-            text: "Lorem ipsum dolor sit amet, consectetur adip",
-            replies: [
-              {
-                name: "Lenin Mohapatra",
-                text: "Lorem ipsum dolor sit amet, consectetur adip",
-                replies: [
-                  {
-                    name: "Lenin Mohapatra",
-                    text: "Lorem ipsum dolor sit amet, consectetur adip",
-                    replies: [
-                      {
-                        name: "Lenin Mohapatra",
-                        text: "Lorem ipsum dolor sit amet, consectetur adip",
-                        replies: [],
-                      },
-                    ],
-                  },
-                  {
-                    name: "Lenin Mohapatra",
-                    text: "Lorem ipsum dolor sit amet, consectetur adip",
-                    replies: [],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: "Lenin Mohapatra",
-    text: "Lorem ipsum dolor sit amet, consectetur adip",
-    replies: [],
-  },
-  {
-    name: "Lenin Mohapatra",
-    text: "Lorem ipsum dolor sit amet, consectetur adip",
-    replies: [],
-  },
-  {
-    name: "Lenin Mohapatra",
-    text: "Lorem ipsum dolor sit amet, consectetur adip",
-    replies: [],
-  },
-  {
-    name: "Lenin Mohapatra",
-    text: "Lorem ipsum dolor sit amet, consectetur adip",
-    replies: [],
-  },
-];
+}));
 
 const Comment = ({ data }) => {
-  const { name, text } = data;
   const classes = useStyles();
+  const { author, text } = data;
 
   return (
     <Box className={classes.commentDetails}>
       <img
-        style={{ width: 30, height: 30 }}
+        className={classes.avatar}
         alt="user"
         src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png"
       />
-      <Box mx={2}>
-        <Typography style={{ fontWeight: "bold" }} variant="subtitle2">
-          {name}
+      <Box className={classes.commentContent}>
+        <Typography variant="subtitle2" style={{ fontWeight: "bold" }}>
+          {author}
         </Typography>
-        <Typography variant="subtitle2">{text}</Typography>
+        <Typography variant="body2">{text}</Typography>
       </Box>
     </Box>
   );
@@ -126,23 +104,96 @@ const Comment = ({ data }) => {
 const CommentsList = ({ comments }) => {
   const classes = useStyles();
 
-  return comments.map((comment, index) => (
-    <Box key={index}>
-      <Comment data={comment} />
-      <Box className={classes.commentList}>
-        <CommentsList comments={comment.replies} />
-      </Box>
+  return (
+    <Box className={classes.commentList}>
+      {comments.length > 0 ? (
+        comments.map((comment, index) => (
+          <Comment key={index} data={comment} />
+        ))
+      ) : (
+        <Typography className={classes.noComments}>
+          No comments yet
+        </Typography>
+      )}
     </Box>
-  ));
+  );
 };
 
 const CommentsContainer = () => {
   const classes = useStyles();
+  const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState("");
+  const router = useRouter();
+  const { videoId } = router.query;
+
+  const fetchComments = async () => {
+    try {
+      const { data } = await api.get(`/api/comments/${videoId}`);
+      setComments(data?.comments || []);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  };
+
+  const postComment = async () => {
+    try {
+      const data = { text: comment, videoId, author: "Anonymous" };
+      await api.post("/api/comment", data);
+      setComments((prevComments) => [
+        { author: "Anonymous", text: comment },
+        ...prevComments,
+      ]);
+      setComment("");
+    } catch (error) {
+      console.error("Error posting comment:", error);
+    }
+  };
+
+  const handlePost = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      postComment();
+    }
+  };
+
+  useEffect(() => {
+    if (videoId) {
+      fetchComments();
+    }
+  }, [videoId]);
 
   return (
-    <Box className={classes.commentcontainer}>
-      <h2>Comments: </h2>
-      <CommentsList comments={commentsData} />
+    <Box className={classes.commentContainer}>
+      <Box display={'flex'} flexDirection={'column'}>
+        <Typography variant="h6" className={classes.header}>
+          Post a Comment
+        </Typography>
+        <TextField
+          id="outlined-basic"
+          label="Add here"
+          variant="outlined"
+          size="small"
+          className={classes.textField}
+          value={comment}
+          multiline
+          rows={4}
+          onChange={(e) => setComment(e.target.value)}
+          onKeyDown={handlePost}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.button}
+          onClick={postComment}
+          size="large"
+        >
+          Send
+        </Button>
+      </Box>
+      <Typography variant="h6" className={classes.header}>
+        Comments:
+      </Typography>
+      <CommentsList comments={comments} />
     </Box>
   );
 };

@@ -4,11 +4,14 @@ import { addMessage } from "../../utils/chatSlice";
 import { generateRandomName, makeRandomMessage } from "../../utils/helper";
 import ChatMessage from "./ChatMessage";
 import { makeStyles } from "@material-ui/core/styles";
-import { Box } from "@material-ui/core";
+import { Box,Typography } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import SendIcon from "@material-ui/icons/Send";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:5000");
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,47 +44,54 @@ const useStyles = makeStyles((theme) => ({
       width: "auto",
     },
   },
+  
   textField: {},
 }));
 
-const LiveChat = () => {
+const LiveChat = ({videoId}) => {
   const [liveMessage, setLiveMessage] = useState("");
+  const [messages,setMessages] = useState([])
   const dispatch = useDispatch();
   const classes = useStyles();
 
   const chatMessages = useSelector((store) => store.chat.messages);
 
   useEffect(() => {
-    const i = setInterval(() => {
-      // API Polling
+      // Listen for incoming messages
+    socket.on("receiveMessage", (message) => {
+      console.log('message',message)
+      if (message.videoId==videoId){
+        setMessages((prevMessages)=>[...prevMessages,message])
+      }
+      });
 
-      dispatch(
-        addMessage({
-          name: generateRandomName(),
-          message: makeRandomMessage(20) + " 🚀",
-        })
-      );
-    }, 2000);
+    return () => {
+      socket.off("receiveMessage");
+    };
 
-    return () => clearInterval(i);
-  }, []);
+    }, [videoId]);
+
+
 
   const Submit = () => {
-    dispatch(
-      addMessage({
-        name: "Lenin Mohapatra",
+     if (liveMessage.trim()){
+       const messageData = {
+        videoId: videoId,
         message: liveMessage,
-      })
-    );
+        name:"user"
+       }
+       socket.emit('sendMessage',messageData)
+     }
     setLiveMessage("");
   };
 
   return (
-    <>
+    <div>
       <Box display="block" justifyContent="center">
+
         <Box className={classes.root}>
           <div>
-            {chatMessages.map((c, i) => (
+            {messages.map((c, i) => (
               <ChatMessage key={i} name={c.name} message={c.message} />
             ))}
           </div>
@@ -94,7 +104,7 @@ const LiveChat = () => {
             margin="dense"
             variant="outlined"
             value={liveMessage}
-            placeholder="Chat publicly as Lenin Mohapatra"
+            placeholder="Chat here"
             onChange={(e) => {
               setLiveMessage(e.target.value);
             }}
@@ -119,7 +129,7 @@ const LiveChat = () => {
           />
         </Box>
       </Box>
-    </>
+    </div>
   );
 };
 export default LiveChat;

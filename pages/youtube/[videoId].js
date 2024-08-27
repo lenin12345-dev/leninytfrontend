@@ -20,6 +20,7 @@ const useStyles = makeStyles((theme) => ({
   },
   watchPage: {
     marginTop: 15,
+    marginBottom: 15,
     marginLeft: 30,
     [theme.breakpoints.down("xs")]: {
       marginLeft: 0,
@@ -36,14 +37,19 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   watchPageFrame: {
-    width: "1200px",
-    height: "600px",
-    [theme.breakpoints.between("lg", "xl")]: {
-      width: "1200px",
-    },
-    [theme.breakpoints.up("lg")]: {
-      width: "1200px",
-    },
+    // width: "1200px",
+    // height: "600px",
+    // width: "100%",
+    // height: "auto",
+    aspectRatio: "16/9", 
+    width: "1200px",  // Limits the maximum width
+    height: "675px", 
+    // [theme.breakpoints.between("lg", "xl")]: {
+    //   width: "1200px",
+    // },
+    // [theme.breakpoints.up("lg")]: {
+    //   width: "1200px",
+    // },
     [theme.breakpoints.down("md")]: {
       width: "650px",
       height: "500px",
@@ -93,10 +99,10 @@ const WatchPage = () => {
           ></iframe>
         </Box>
         <Box className={classes.liveChat}>
-          <LiveChat />
+          <LiveChat videoId={videoId} />
         </Box>
       </Box>
-      <CommentsContainer />
+      <CommentsContainer  />
     </Box>
   );
 };
