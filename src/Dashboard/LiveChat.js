@@ -11,7 +11,7 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://leninyoutubebackend.vercel.app");
 
 const useStyles = makeStyles((theme) => ({
   root: {
