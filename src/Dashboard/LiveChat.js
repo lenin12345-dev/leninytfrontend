@@ -54,7 +54,6 @@ const LiveChat = ({videoId}) => {
   const dispatch = useDispatch();
   const classes = useStyles();
 
-  const chatMessages = useSelector((store) => store.chat.messages);
 
   useEffect(() => {
       // Listen for incoming messages
