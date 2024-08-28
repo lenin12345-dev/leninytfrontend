@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-const LOCALHOST='https://leninyoutubebackend.onrender.com/'
+const LOCALHOST='https://leninyoutubebackend.onrender.com'
 
 export const API_BASE_URL = LOCALHOST;
 
