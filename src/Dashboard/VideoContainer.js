@@ -8,6 +8,7 @@ import Link from "next/link";
 import Skeleton from "../../component/Skeleton/grid";
 import InfiniteScroll from "../../component/InfiniteScroll";
 
+
 const useStyles = makeStyles((theme) => ({
   videoContainer: {
     display: "flex",
@@ -37,6 +38,8 @@ const VideoContainer = () => {
   const classes = useStyles();
   const [hasMore, setHasMore] = useState(true);
   const [token, setToken] = useState("");
+console.log('YOUTUBE_VIDEOS_API',YOUTUBE_VIDEOS_API)
+
 
   useEffect(() => {
     getVideos();
